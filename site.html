@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDS-UPDRS Completo - Avaliação Clínica</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; color: #2c3e50; }
+        h2 { background-color: #3498db; color: white; padding: 10px; border-radius: 4px; margin-top: 40px; }
+        h3 { color: #2980b9; margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .info-section { background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 200px; }
+        .form-group label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        .form-group input, .form-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .question-block { margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-left: 5px solid #3498db; border-radius: 4px; background: #fafafa; }
+        .question-title { font-weight: bold; font-size: 1.05em; margin-bottom: 5px; }
+        .options-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .options-group label { cursor: pointer; font-size: 0.95em; }
+        
+        .special-block { background: #e8f4f8; padding: 15px; border: 1px solid #bce8f1; border-radius: 4px; margin-bottom: 20px; }
+        .special-block .inline-group { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; align-items: flex-end; }
+        
+        /* Novos Estilos da Calculadora em Tons de Verde */
+        .calc-box { 
+            background: #e8f5e9; 
+            border: 1px solid #c8e6c9; 
+            padding: 25px; 
+            border-radius: 8px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .calc-box h4 { 
+            margin-top: 0; 
+            color: #1b5e20; 
+            border-bottom: 2px solid #a5d6a7; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+            font-size: 1.1em;
+        }
+        .calc-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: #ffffff;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #c8e6c9;
+            flex-wrap: wrap;
+        }
+        .calc-row:last-child { margin-bottom: 0; }
+        
+        .calc-box .result-input { 
+            background: #c8e6c9; 
+            font-weight: bold; 
+            color: #1b5e20; 
+            text-align: center; 
+            border: 1px solid #a5d6a7;
+            font-size: 1.1em;
+        }
+
+        .btn-submit { display: block; width: 100%; background: #27ae60; color: #fff; border: none; padding: 15px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 30px; }
+        .btn-submit:hover { background: #2ecc71; }
+        
+        #result-box { display: none; margin-top: 20px; padding: 20px; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 5px; font-size: 1.1em; }
+        .score-part { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 5px 0; }
+        .score-total { font-weight: bold; font-size: 1.3em; margin-top: 15px; border-top: 2px solid #155724; padding-top: 10px; }
+        
+        /* =======================================================
+           CÓDIGO PARA ADAPTAÇÃO A TELEMÓVEIS E TABLETS (RESPONSIVO)
+           ======================================================= */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            
+            /* Empilha os campos lado a lado para ficarem uns por cima dos outros */
+            .info-section, 
+            .special-block .inline-group, 
+            .calc-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            /* Garante que os campos ocupam toda a largura do ecrã */
+            .form-group {
+                width: 100%;
+            }
+            
+            input[type="text"], 
+            input[type="number"], 
+            input[type="date"], 
+            select {
+                width: 100%;
+                box-sizing: border-box;
+                font-size: 16px; /* O tamanho 16px evita que os iPhones façam zoom automático ao clicar */
+                padding: 12px 8px; /* Mais espaço para facilitar o toque com o dedo */
+            }
+
+            /* Espaçamento extra nas opções de resposta (bolinhas) para não clicar na errada sem querer */
+            .options-group label {
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+                display: block;
+            }
+            
+            .options-group label:last-child {
+                border-bottom: none;
+            }
+
+            /* Ajuste da caixa final de resultados para ecrãs pequenos */
+            .score-part {
+                flex-direction: column;
+                text-align: left;
+                padding: 10px 0;
+            }
+            .score-part strong {
+                margin-top: 5px;
+                font-size: 1.2em;
+            }
+            .calc-box {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>MDS-UPDRS Completo</h1>
+    
+    <div class="info-section">
+        <div class="form-group"><label>Nome do Paciente:</label><input type="text" id="patientName" name="Nome_do_Paciente" required></div>
+        <div class="form-group"><label>Local:</label><input type="text" id="location" name="Local" required></div>
+        <div class="form-group"><label>Data da Avaliação:</label><input type="date" id="date" name="Data_Avaliacao" required></div>
+        <div class="form-group"><label>Iniciais do Médico:</label><input type="text" id="doctorInitials" name="Iniciais_Medico" required></div>
+    </div>
+
+    <form id="updrsForm" action="https://formspree.io/f/SEU_CODIGO_AQUI" method="POST">
+        
+        <input type="hidden" id="hiddenP1" name="Total_Parte_1">
+        <input type="hidden" id="hiddenP2" name="Total_Parte_2">
+        <input type="hidden" id="hiddenP3" name="Total_Parte_3">
+        <input type="hidden" id="hiddenP4" name="Total_Parte_4">
+        <input type="hidden" id="hiddenTotal" name="Pontuacao_TOTAL">
+        
+        <h2>Parte I: Experiências Não Motoras de Vida Diária</h2>
+        
+        <div class="special-block" style="margin-bottom: 15px;">
+            <div class="form-group">
+                <label>Informante da Entrevista com o Avaliador (Itens 1.1 a 1.6):</label>
+                <select id="fillerTypeEntrevista" name="Informante_Entrevista_1.1_a_1.6" required>
+                    <option value="">Selecione...</option>
+                    <option value="Paciente">Paciente</option>
+                    <option value="Cuidador">Cuidador</option>
+                    <option value="Ambos">Ambos (50/50)</option>
+                </select>
+            </div>
+        </div>
+
+        <h3>Avaliadas pelo Investigador (1.1 - 1.6)</h3>
+        <div id="part1a"></div>
+        
+        <br>
+
+        <div class="special-block" style="margin-bottom: 15px;">
+            <div class="form-group">
+                <label>Quem está a preencher o Questionário do Paciente (Itens 1.7 em diante)?</label>
+                <select id="fillerTypeQuestionario" name="Preenchido_Por_Questionario_Paciente" required>
+                    <option value="">Selecione...</option>
+                    <option value="Paciente">Paciente</option>
+                    <option value="Cuidador">Cuidador</option>
+                    <option value="Ambos">Ambos (50/50)</option>
+                </select>
+            </div>
+        </div>
+
+        <h3>Questionário do Paciente/Cuidador (1.7 - 1.13)</h3>
+        <div id="part1b"></div>
+
+    <form id="updrsForm" action="https://formspree.io/f/SEU_CODIGO_AQUI" method="POST">
+        
+        <input type="hidden" id="hiddenP1" name="Total_Parte_1">
+        <input type="hidden" id="hiddenP2" name="Total_Parte_2">
+        <input type="hidden" id="hiddenP3" name="Total_Parte_3">
+        <input type="hidden" id="hiddenP4" name="Total_Parte_4">
+        <input type="hidden" id="hiddenTotal" name="Pontuacao_TOTAL">
+
+        <h2>Parte II: Experiências Motoras de Vida Diária (2.1 - 2.13)</h2>
+        <div id="part2"></div>
+
+        <h2>Parte III: Avaliação Motora</h2>
+        <div class="special-block">
+            <div class="inline-group">
+                <div class="form-group">
+                    <label>3a. Toma medicação antiparkinsoniana?</label>
+                    <select id="med3a"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                </div>
+                <div class="form-group">
+                    <label>3b. Estado clínico do paciente:</label>
+                    <select id="med3b"><option value="Off">Off</option><option value="On">On</option></select>
+                </div>
+            </div>
+            <div class="inline-group">
+                <div class="form-group">
+                    <label>3c. Toma Levodopa?</label>
+                    <select id="med3c"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                </div>
+                <div class="form-group">
+                    <label>3.C1 Minutos desde a última dose:</label>
+                    <input type="number" id="med3C1" min="0" placeholder="Minutos">
+                </div>
+            </div>
+        </div>
+
+        <div id="part3"></div>
+
+        <div class="special-block">
+            <div class="inline-group">
+                <div class="form-group">
+                    <label>Discinesias estiveram presentes?</label>
+                    <select id="disc_presentes"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Interferiram com as pontuações motoras?</label>
+                    <select id="disc_interferiram"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label>Estadiamento Hoehn e Yahr:</label>
+                <select id="hoehn_yahr">
+                    <option value="0">0 - Assintomático</option>
+                    <option value="1">1 - Doença unilateral</option>
+                    <option value="2">2 - Doença bilateral sem comprometimento do equilíbrio</option>
+                    <option value="3">3 - Doença bilateral; alguma instabilidade postural; independente</option>
+                    <option value="4">4 - Incapacidade grave; capaz de andar/ficar em pé sem ajuda</option>
+                    <option value="5">5 - Cadeirante ou acamado sem ajuda</option>
+                </select>
+            </div>
+        </div>
+
+        <h2>Parte IV: Complicações Motoras (4.1 - 4.6)</h2>
+
+        <div class="calc-box">
+            <h4>Calculadora de Tempos e Porcentagens (Apoio Parte IV)</h4>
+            <div class="calc-row">
+                <div class="form-group" style="flex: 2;">
+                    <label>Total de horas acordado no dia:</label>
+                    <input type="number" step="0.5" id="horasAcordado" placeholder="Ex: 16" oninput="calcularPorcentagensPart4()">
+                </div>
+            </div>
+            <div class="calc-row">
+                <div class="form-group">
+                    <label>Horas com Discinesia (Ajuda p/ 4.1):</label>
+                    <input type="number" step="0.5" id="horasDiscinesia" placeholder="Ex: 2" oninput="calcularPorcentagensPart4()">
+                </div>
+                <div class="form-group">
+                    <label>% do dia com Discinesia:</label>
+                    <input type="text" id="percDiscinesia" class="result-input" readonly>
+                </div>
+            </div>
+            <div class="calc-row">
+                <div class="form-group">
+                    <label>Horas em OFF (Ajuda p/ 4.3):</label>
+                    <input type="number" step="0.5" id="horasOff" placeholder="Ex: 4" oninput="calcularPorcentagensPart4()">
+                </div>
+                <div class="form-group">
+                    <label>% do dia em OFF:</label>
+                    <input type="text" id="percOff" class="result-input" readonly>
+                </div>
+            </div>
+            <div class="calc-row">
+                <div class="form-group">
+                    <label>Horas c/ Distonia dolorosa em OFF (Ajuda p/ 4.6):</label>
+                    <input type="number" step="0.5" id="horasDistonia" placeholder="Ex: 1" oninput="calcularPorcentagensPart4()">
+                </div>
+                <div class="form-group">
+                    <label>% do tempo OFF com Distonia:</label>
+                    <input type="text" id="percDistonia" class="result-input" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div id="part4"></div>
+
+        <button type="button" class="btn-submit" onclick="calculateFinalScore()">Calcular Pontuação Completa</button>
+    </form>
+
+    <div id="result-box">
+        <h3>Resultado da Escala MDS-UPDRS</h3>
+        <div class="score-part"><span>Parte I (Soma 1.1 a 1.13):</span> <strong id="scoreP1">0</strong></div>
+        <div class="score-part"><span>Parte II (Soma 2.1 a 2.13):</span> <strong id="scoreP2">0</strong></div>
+        <div class="score-part"><span>Parte III (Soma 3.1 a 3.18):</span> <strong id="scoreP3">0</strong></div>
+        <div class="score-part"><span>Parte IV (Soma 4.1 a 4.6):</span> <strong id="scoreP4">0</strong></div>
+        <div class="score-total"><span>PONTUAÇÃO TOTAL MDS-UPDRS:</span> <strong id="scoreTotal">0</strong></div>
+        
+        <button type="submit" class="btn-submit" style="background-color: #2c3e50; margin-top: 20px;">Enviar Avaliação por E-mail</button>
+    </div>
+
+<script>
+    const defaultOptions = [
+        { val: 0, text: '0: Normal' },
+        { val: 1, text: '1: Discreto' },
+        { val: 2, text: '2: Ligeiro' },
+        { val: 3, text: '3: Moderado' },
+        { val: 4, text: '4: Grave' }
+    ];
+
+    const optRigidez = [
+        { val: 0, text: '0: Normal: Sem rigidez.' },
+        { val: 1, text: '1: Discreto: Rigidez discreta ou apenas detetável com manobra de ativação.' },
+        { val: 2, text: '2: Ligeiro: Rigidez ligeira a moderada, sem dificuldade na amplitude total.' },
+        { val: 3, text: '3: Moderado: Rigidez acentuada com dificuldade na amplitude total de movimento.' },
+        { val: 4, text: '4: Grave: Rigidez muito grave; movimento quase impossível.' }
+    ];
+
+    const optAgilidade = [
+        { val: 0, text: '0: Normal: Sem problemas.' },
+        { val: 1, text: '1: Discreto: 1 a 2 interrupções/hesitações; lentidão mínima; ou amplitude diminui no final.' },
+        { val: 2, text: '2: Ligeiro: 3 a 5 interrupções; lentidão ligeira; ou amplitude diminui no meio da tarefa.' },
+        { val: 3, text: '3: Moderado: Mais de 5 interrupções ou bloqueio; lentidão moderada; ou amplitude diminui logo no início.' },
+        { val: 4, text: '4: Grave: Não consegue ou quase não consegue executar a tarefa.' }
+    ];
+    const optTremor = [
+            { val: 0, text: '0: Normal: Sem tremor.' },
+            { val: 1, text: '1: Discreto: Tremor presente, mas < 1 cm na amplitude máxima.' },
+            { val: 2, text: '2: Ligeiro: Tremor com pelo menos 1 a < 3 cm na amplitude máxima.' },
+            { val: 3, text: '3: Moderado: Tremor com pelo menos 3 a < 10 cm na amplitude máxima.' },
+            { val: 4, text: '4: Grave: Tremor de 10 cm (ou mais) na amplitude máxima.' }
+        ];
+
+    // Uma única lista com TODAS as perguntas
+    const allQuestions = [
+        // PARTE 1A
+        { 
+            container: 'part1a', id: '1.1', title: 'Comprometimento Cognitivo',
+            options: [
+                { val: 0, text: '0: Normal: Sem comprometimento cognitivo.' },
+                { val: 1, text: '1: Discreto: Comprometimento da memória ou de outras habilidades que não afetam as atividades diárias.' },
+                { val: 2, text: '2: Ligeiro: Comprometimento cognitivo clinicamente evidente que interfere minimamente nas atividades diárias.' },
+                { val: 3, text: '3: Moderado: Comprometimento cognitivo que interfere em muitas das atividades de vida diária.' },
+                { val: 4, text: '4: Grave: Comprometimento cognitivo que interfere na maioria ou em todas as atividades de vida diária.' }
+            ]
+        },
+        { 
+            container: 'part1a', id: '1.2', title: 'Alucinações e Psicose',
+            options: [
+                { val: 0, text: '0: Normal: Sem alucinações ou comportamento psicótico.' },
+                { val: 1, text: '1: Discreto: Ilusões ou alucinações não formadas (ex: sensação de passagem), mas o paciente reconhece que não são reais.' },
+                { val: 2, text: '2: Ligeiro: Alucinações formadas independentemente da manutenção de crítica (insight).' },
+                { val: 3, text: '3: Moderado: Alucinações formadas ou delírios com perda de crítica que interferem nas atividades.' },
+                { val: 4, text: '4: Grave: Alucinações ou delírios graves; o paciente pode estar agressivo ou ser incapaz de interagir normalmente.' }
+            ]
+        },
+        { 
+            container: 'part1a', id: '1.3', title: 'Humor Deprimido',
+            options: [
+                { val: 0, text: '0: Normal: Sem humor deprimido.' },
+                { val: 1, text: '1: Discreto: Episódios de humor deprimido que não afetam as atividades normais.' },
+                { val: 2, text: '2: Ligeiro: Humor deprimido que interfere levemente em algumas atividades, mas sem interferência funcional grave.' },
+                { val: 3, text: '3: Moderado: Humor deprimido clinicamente evidente e que interfere em muitas atividades de vida diária.' },
+                { val: 4, text: '4: Grave: Humor deprimido profundo que interfere na maioria das atividades; pode haver pensamentos suicidas.' }
+            ]
+        },
+        { 
+            container: 'part1a', id: '1.4', title: 'Humor Ansioso',
+            options: [
+                { val: 0, text: '0: Normal: Sem ansiedade.' },
+                { val: 1, text: '1: Discreto: Sentimentos de ansiedade, mas que não interferem nas atividades ou nas interações.' },
+                { val: 2, text: '2: Ligeiro: Ansiedade que interfere levemente em algumas atividades diárias ou nas interações.' },
+                { val: 3, text: '3: Moderado: Ansiedade que interfere moderadamente em muitas das atividades diárias.' },
+                { val: 4, text: '4: Grave: Ansiedade muito grave ou ataques de pânico que interferem na maioria das atividades.' }
+            ]
+        },
+        { 
+            container: 'part1a', id: '1.5', title: 'Apatia',
+            options: [
+                { val: 0, text: '0: Normal: Sem apatia.' },
+                { val: 1, text: '1: Discreto: Falta de interesse em algumas coisas, mas o paciente engaja-se quando estimulado.' },
+                { val: 2, text: '2: Ligeiro: Falta de interesse passivo; o paciente precisa de ser encorajado para interagir ou fazer atividades.' },
+                { val: 3, text: '3: Moderado: Apatia que interfere substancialmente nas atividades; raramente toma a iniciativa.' },
+                { val: 4, text: '4: Grave: Apatia extrema; o paciente quase não apresenta emoção e não inicia atividades nem quando estimulado.' }
+            ]
+        },
+        { 
+            container: 'part1a', id: '1.6', title: 'Características da Síndrome de Desregulação Dopaminérgica',
+            options: [
+                { val: 0, text: '0: Normal: Sem comportamentos compulsivos.' },
+                { val: 1, text: '1: Discreto: Ocorrência de comportamentos, mas que não afetam as atividades ou as finanças.' },
+                { val: 2, text: '2: Ligeiro: Comportamentos presentes que causam pequenos problemas, podendo ser escondidos dos outros.' },
+                { val: 3, text: '3: Moderado: Comportamentos que interferem claramente na vida do paciente (ex: financeiros, familiares).' },
+                { val: 4, text: '4: Grave: Comportamentos compulsivos severos; o paciente necessita de supervisão constante.' }
+            ]
+        },
+        
+        // PARTE 1B
+        { 
+            container: 'part1b', id: '1.7', title: 'Problemas do Sono',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Os problemas do sono existem, mas habitualmente não impedem que tenha uma noite de sono completa.' },
+                { val: 2, text: '2: Ligeiro: Os problemas do sono causam habitualmente alguma dificuldade em ter uma noite de sono completa.' },
+                { val: 3, text: '3: Moderado: Os problemas do sono causam muitas dificuldades, mas habitualmente ainda durmo mais de metade da noite.' },
+                { val: 4, text: '4: Grave: Habitualmente não consigo dormir durante a maior parte da noite.' }
+            ]
+        },
+        { 
+            container: 'part1b', id: '1.8', title: 'Sonolência Diurna',
+            options: [
+                { val: 0, text: '0: Normal: Sem sonolência durante o dia.' },
+                { val: 1, text: '1: Discreto: Tenho sonolência durante o dia, mas consigo resistir e permaneço acordado.' },
+                { val: 2, text: '2: Ligeiro: Por vezes adormeço quando estou sozinho e relaxado (ex: lendo ou vendo TV).' },
+                { val: 3, text: '3: Moderado: Por vezes adormeço quando não deveria (ex: enquanto como ou falo com outras pessoas).' },
+                { val: 4, text: '4: Grave: Adormeço frequentemente quando não deveria (ex: enquanto como ou falo com outras pessoas).' }
+            ]
+        },
+        { 
+            container: 'part1b', id: '1.9', title: 'Dor e Outras Sensações',
+            options: [
+                { val: 0, text: '0: Normal: Não tenho estas sensações desconfortáveis.' },
+                { val: 1, text: '1: Discreto: Tenho estas sensações, mas consigo fazer coisas e estar com outras pessoas sem dificuldade.' },
+                { val: 2, text: '2: Ligeiro: Estas sensações causam alguns problemas quando faço coisas ou estou com outras pessoas.' },
+                { val: 3, text: '3: Moderado: Estas sensações causam muitos problemas, mas não me impedem de fazer coisas.' },
+                { val: 4, text: '4: Grave: Estas sensações impedem-me de fazer coisas ou de estar com outras pessoas.' }
+            ]
+        },
+        { 
+            container: 'part1b', id: '1.10', title: 'Problemas Urinários',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas em reter a urina.' },
+                { val: 1, text: '1: Discreto: Preciso de urinar frequentemente ou tenho urgência, mas sem dificuldades nas atividades diárias.' },
+                { val: 2, text: '2: Ligeiro: Causam-me algumas dificuldades nas atividades diárias. Não tenho perdas acidentais de urina.' },
+                { val: 3, text: '3: Moderado: Causam-me muitas dificuldades, incluindo perdas acidentais de urina.' },
+                { val: 4, text: '4: Grave: Não consigo reter a minha urina e uso uma fralda ou tenho sonda urinária.' }
+            ]
+        },
+        { 
+            container: 'part1b', id: '1.11', title: 'Problemas de Obstipação Intestinal',
+            options: [
+                { val: 0, text: '0: Normal: Sem obstipação (prisão de ventre).' },
+                { val: 1, text: '1: Discreto: Faço um esforço extra para evacuar, mas não perturba as minhas atividades ou conforto.' },
+                { val: 2, text: '2: Ligeiro: A obstipação causa-me alguma dificuldade em fazer coisas ou em estar confortável.' },
+                { val: 3, text: '3: Moderado: A obstipação causa-me muita dificuldade, mas não me impede de fazer o que quer que seja.' },
+                { val: 4, text: '4: Grave: Habitualmente preciso da ajuda física de outra pessoa para evacuar.' }
+            ]
+        },
+        { 
+            container: 'part1b', id: '1.12', title: 'Tonturas ao se Levantar',
+            options: [
+                { val: 0, text: '0: Normal: Não tenho a sensação de cabeça vazia ou tonturas.' },
+                { val: 1, text: '1: Discreto: Tenho a sensação de cabeça vazia ou de tonturas, mas não me causam dificuldade em fazer coisas.' },
+                { val: 2, text: '2: Ligeiro: As tonturas causam-me alguns problemas em fazer coisas, mas não perco o equilíbrio.' },
+                { val: 3, text: '3: Moderado: As tonturas causam-me muitos problemas em fazer coisas, mas não perco o equilíbrio.' },
+                { val: 4, text: '4: Grave: Tenho tonturas muito fortes e desmaio ou perco o equilíbrio.' }
+            ]
+        },
+        { 
+            container: 'part1b', id: '1.13', title: 'Fadiga',
+            options: [
+                { val: 0, text: '0: Normal: Sem fadiga.' },
+                { val: 1, text: '1: Discreto: Tenho fadiga, mas não me causa dificuldades em fazer coisas.' },
+                { val: 2, text: '2: Ligeiro: A fadiga causa-me alguns problemas em fazer coisas ou em estar com outras pessoas.' },
+                { val: 3, text: '3: Moderado: A fadiga causa-me muitos problemas, mas não me impede de fazer coisas.' },
+                { val: 4, text: '4: Grave: A fadiga impede-me de fazer coisas ou de estar com outras pessoas.' }
+            ]
+        },
+
+        // PARTE 2
+        { 
+            container: 'part2', id: '2.1', title: 'Fala',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: As outras pessoas costumam pedir-me que repita as palavras.' },
+                { val: 2, text: '2: Ligeiro: A minha fala causa-me alguns problemas em me fazer entender.' },
+                { val: 3, text: '3: Moderado: A minha fala causa-me muitos problemas em me fazer entender, mas não me impede de comunicar.' },
+                { val: 4, text: '4: Grave: As outras pessoas habitualmente não me entendem.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.2', title: 'Saliva e Baba',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Tenho um pouco de saliva a mais na boca do que o normal.' },
+                { val: 2, text: '2: Ligeiro: Tenho demasiada saliva na boca e de noite babo-me um pouco.' },
+                { val: 3, text: '3: Moderado: Tenho demasiada saliva na boca e de dia babo-me um pouco.' },
+                { val: 4, text: '4: Grave: Babo-me tanto que preciso de ter sempre um lenço ou lenço de papel para me limpar.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.3', title: 'Mastigação e Deglutição',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Tenho consciência de que engolir ou mastigar me custa um pouco, mas sem engasgos nem perdas de peso.' },
+                { val: 2, text: '2: Ligeiro: Preciso de alterar as minhas refeições para engolir melhor, mas não engasgo nem perdi peso.' },
+                { val: 3, text: '3: Moderado: Tenho alguns episódios em que me engasgo durante as refeições, mas não perdi peso.' },
+                { val: 4, text: '4: Grave: Tenho muitos engasgos ou já perdi peso por causa das dificuldades a engolir ou mastigar.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.4', title: 'Tarefas para Comer',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Sou um pouco lento a usar os talheres, mas não preciso de ajuda.' },
+                { val: 2, text: '2: Ligeiro: A lentidão perturba as minhas refeições ou tenho de mudar a forma de usar os talheres.' },
+                { val: 3, text: '3: Moderado: Preciso que outra pessoa corte os meus alimentos ou que me sirva a comida.' },
+                { val: 4, text: '4: Grave: Preciso de ajuda para ser alimentado a maior parte do tempo ou para todas as refeições.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.5', title: 'Vestir',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Sou um pouco lento a vestir-me, mas não preciso de ajuda.' },
+                { val: 2, text: '2: Ligeiro: A lentidão perturba ou preciso de alterar a forma como me visto (ex. fechos de fita aderente/velcro).' },
+                { val: 3, text: '3: Moderado: Preciso de alguma ajuda de outra pessoa (ex. apertar botões ou dar laços nos atacadores).' },
+                { val: 4, text: '4: Grave: Preciso de ajuda de outra pessoa para a maior parte das tarefas de me vestir.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.6', title: 'Higiene',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Sou um pouco lento, mas não preciso de ajuda.' },
+                { val: 2, text: '2: Ligeiro: A minha lentidão perturba as tarefas de higiene pessoal ou preciso de mudar a minha rotina ou usar ajudas especiais.' },
+                { val: 3, text: '3: Moderado: Preciso de ajuda em parte das minhas tarefas de higiene.' },
+                { val: 4, text: '4: Grave: Preciso de ajuda na maior parte das tarefas de higiene.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.7', title: 'Escrita',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: A minha escrita é mais lenta, desajeitada ou menor do que costumava ser, mas ninguém nota.' },
+                { val: 2, text: '2: Ligeiro: As outras pessoas dizem-me que a minha escrita mudou, mas eu próprio consigo ler o que escrevo.' },
+                { val: 3, text: '3: Moderado: A minha escrita é muito desajeitada e as outras pessoas não conseguem lê-la habitualmente.' },
+                { val: 4, text: '4: Grave: Não consigo escrever a maior parte do tempo.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.8', title: 'Passatempos e Outras Atividades',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Tenho alguma dificuldade nestas tarefas, mas não as deixei de fazer.' },
+                { val: 2, text: '2: Ligeiro: As dificuldades nestas tarefas perturbam-me e demoro mais do que é costume a executá-las.' },
+                { val: 3, text: '3: Moderado: O facto de as coisas me custarem tanto faz-me desistir de fazer estas atividades a maior parte das vezes.' },
+                { val: 4, text: '4: Grave: Não consigo fazer estas atividades.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.9', title: 'Virar na Cama',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Sou um pouco lento e desajeitado a virar-me, mas não preciso de qualquer ajuda.' },
+                { val: 2, text: '2: Ligeiro: Tenho dificuldade em virar-me e a dormir a noite toda porque me custa virar na cama.' },
+                { val: 3, text: '3: Moderado: Preciso de que a minha mulher, marido ou de alguém que me ajude a virar-me na cama.' },
+                { val: 4, text: '4: Grave: Preciso de que me virem na cama ou de usar um guincho ou de um estrado elevatório.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.10', title: 'Tremor',
+            options: [
+                { val: 0, text: '0: Normal: Sem tremor.' },
+                { val: 1, text: '1: Discreto: Tenho um ligeiro tremor mas que não interfere na minha rotina diária.' },
+                { val: 2, text: '2: Ligeiro: O tremor interfere nas minhas atividades diárias de modo a ter de mudar a forma de fazer certas coisas.' },
+                { val: 3, text: '3: Moderado: O tremor dificulta muito a minha vida e preciso da ajuda dos outros.' },
+                { val: 4, text: '4: Grave: O tremor impede que eu faça a maioria das minhas atividades sem grande ajuda.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.11', title: 'Sair da Cama, Carro e Cadeira Baixa',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Sou um pouco lento e desajeitado a levantar-me, mas habitualmente só tento uma vez.' },
+                { val: 2, text: '2: Ligeiro: Preciso de várias tentativas para me conseguir levantar.' },
+                { val: 3, text: '3: Moderado: Tenho de me agarrar aos móveis ou braços da cadeira com muita força para conseguir levantar-me.' },
+                { val: 4, text: '4: Grave: Preciso sempre de ajuda e a maior parte das vezes não me consigo levantar sozinho.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.12', title: 'Marcha e Equilíbrio',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: A minha marcha é desajeitada e as outras pessoas dizem-me que caminho de forma estranha.' },
+                { val: 2, text: '2: Ligeiro: Tenho de andar devagar com receio de cair ou preciso de usar uma bengala, por vezes.' },
+                { val: 3, text: '3: Moderado: Para poder caminhar tenho sempre de ter a ajuda de outra pessoa, mas consigo fazer curtas distâncias sozinho.' },
+                { val: 4, text: '4: Grave: Não posso caminhar em parte alguma mesmo que me apoiem ou me peguem no braço.' }
+            ]
+        },
+        { 
+            container: 'part2', id: '2.13', title: 'Bloqueios na Marcha (Freezing)',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas de paradas (bloqueios) quando caminho.' },
+                { val: 1, text: '1: Discreto: Fico bloqueado no começo da marcha ou quando viro. Os episódios não são habituais.' },
+                { val: 2, text: '2: Ligeiro: Tenho pequenos bloqueios muito frequentes, mas retomo rapidamente e não caio.' },
+                { val: 3, text: '3: Moderado: Fico bloqueado muitas vezes. Já caí pelo menos uma vez por ficar com os pés bloqueados no chão.' },
+                { val: 4, text: '4: Grave: Os bloqueios impedem-me praticamente de caminhar de uma forma contínua e segura.' }
+            ]
+        },
+    
+        // PARTE 3
+        { 
+            container: 'part3', id: '3.1', title: 'Fala',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas de fala.' },
+                { val: 1, text: '1: Discreto: Perda de modulação, mas palavras são facilmente compreensíveis.' },
+                { val: 2, text: '2: Ligeiro: Algumas palavras não são claras, mas a frase é fácil de compreender.' },
+                { val: 3, text: '3: Moderado: A fala é difícil de compreender (algumas frases não se entendem).' },
+                { val: 4, text: '4: Grave: A maioria da fala é ininteligível.' }
+            ]
+        },
+        { 
+            container: 'part3', id: '3.2', title: 'Expressão Facial',
+            options: [
+                { val: 0, text: '0: Normal: Expressão facial normal.' },
+                { val: 1, text: '1: Discreto: Mínima fácies inexpressiva (diminuição do piscar de olhos).' },
+                { val: 2, text: '2: Ligeiro: Fácies inexpressiva na parte inferior (menos sorriso), sem afastar os lábios.' },
+                { val: 3, text: '3: Moderado: Fácies inexpressiva com afastamento dos lábios por algum tempo.' },
+                { val: 4, text: '4: Grave: Fácies inexpressiva com lábios afastados na maior parte do tempo.' }
+            ]
+        },
+        { container: 'part3', id: '3.3a', title: 'Rigidez - Pescoço', options: optRigidez },
+        { container: 'part3', id: '3.3b', title: 'Rigidez - Membro Superior Direito (MSD)', options: optRigidez },
+        { container: 'part3', id: '3.3c', title: 'Rigidez - Membro Superior Esquerdo (MSE)', options: optRigidez },
+        { container: 'part3', id: '3.3d', title: 'Rigidez - Membro Inferior Direito (MID)', options: optRigidez },
+        { container: 'part3', id: '3.3e', title: 'Rigidez - Membro Inferior Esquerdo (MIE)', options: optRigidez },
+        
+        { container: 'part3', id: '3.4a', title: 'Bater os dedos (Pinça) - Mão Direita', options: optAgilidade },
+        { container: 'part3', id: '3.4b', title: 'Bater os dedos (Pinça) - Mão Esquerda', options: optAgilidade },
+        { container: 'part3', id: '3.5a', title: 'Movimentos das mãos - Mão Direita', options: optAgilidade },
+        { container: 'part3', id: '3.5b', title: 'Movimentos das mãos - Mão Esquerda', options: optAgilidade },
+        { container: 'part3', id: '3.6a', title: 'Movimentos de pronação-supinação - Mão Direita', options: optAgilidade },
+        { container: 'part3', id: '3.6b', title: 'Movimentos de pronação-supinação - Mão Esquerda', options: optAgilidade },
+        { container: 'part3', id: '3.7a', title: 'Bater o calcanhar - Pé Direito', options: optAgilidade },
+        { container: 'part3', id: '3.7b', title: 'Bater o calcanhar - Pé Esquerdo', options: optAgilidade },
+        { container: 'part3', id: '3.8a', title: 'Agilidade da perna - Perna Direita', options: optAgilidade },
+        { container: 'part3', id: '3.8b', title: 'Agilidade da perna - Perna Esquerda', options: optAgilidade },
+        
+        { 
+            container: 'part3', id: '3.9', title: 'Levantar da cadeira',
+            options: [
+                { val: 0, text: '0: Normal: Nenhuma dificuldade. Levanta-se de forma rápida e fluente, sem usar os braços.' },
+                { val: 1, text: '1: Discreto: Lento, ou levanta-se precisando de mais do que uma tentativa; não usa os braços.' },
+                { val: 2, text: '2: Ligeiro: Fica de pé empurrando para cima com os braços no assento ou braços da cadeira.' },
+                { val: 3, text: '3: Moderado: Tende a cair para trás; pode ter que tentar mais de uma vez com o uso dos braços.' },
+                { val: 4, text: '4: Grave: Incapaz de se levantar sem auxílio de outra pessoa.' }
+            ]
+        },
+        { 
+            container: 'part3', id: '3.10', title: 'Marcha',
+            options: [
+                { val: 0, text: '0: Normal: Nenhuma dificuldade na marcha (passo normal; sem festinação).' },
+                { val: 1, text: '1: Discreto: Marcha independente intacta, mas passos ligeiramente diminuídos.' },
+                { val: 2, text: '2: Ligeiro: Marcha arrastada, passos curtos e pode ter festinação. Requer pouca ou nenhuma ajuda.' },
+                { val: 3, text: '3: Moderado: Anomalia grave da marcha, requerendo ajuda para caminhar de forma segura.' },
+                { val: 4, text: '4: Grave: Incapaz de caminhar de forma independente, mesmo com assistência.' }
+            ]
+        },
+        { 
+            container: 'part3', id: '3.11', title: 'Congelamento da Marcha (Freezing)',
+            options: [
+                { val: 0, text: '0: Normal: Sem congelamento (freezing).' },
+                { val: 1, text: '1: Discreto: Congelamento transitório apenas ao virar.' },
+                { val: 2, text: '2: Ligeiro: Congelamento transitório ao iniciar a marcha, e bloqueios curtos com marcha em linha reta.' },
+                { val: 3, text: '3: Moderado: Bloqueio frequente; ocasionalmente resulta em perda do equilíbrio.' },
+                { val: 4, text: '4: Grave: Episódios de bloqueio frequentes e de longa duração; não consegue dar um passo sem ajuda.' }
+            ]
+        },
+        { 
+            container: 'part3', id: '3.12', title: 'Estabilidade Postural',
+            options: [
+                { val: 0, text: '0: Normal: Recupera a estabilidade independentemente com ≤ 2 passos (ou com um passo maior) para trás.' },
+                { val: 1, text: '1: Discreto: Recupera a estabilidade independentemente com 3-5 passos para trás.' },
+                { val: 2, text: '2: Ligeiro: Mais de 5 passos para recuperar a estabilidade, mas não requer assistência.' },
+                { val: 3, text: '3: Moderado: Cai sem proteção ou requer assistência do investigador para evitar a queda.' },
+                { val: 4, text: '4: Grave: Perda de estabilidade com qualquer tração em que seria normalmente esperado que caísse.' }
+            ]
+        },
+       
+        { 
+            container: 'part3', id: '3.13', title: 'Postura',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas. Postura erecta.' },
+                { val: 1, text: '1: Discreto: Postura não totalmente erecta; um pouco encurvada, podendo ser normal para a idade.' },
+                { val: 2, text: '2: Ligeiro: Postura claramente encurvada (flexão do tronco ou pescoço), mas não de forma acentuada.' },
+                { val: 3, text: '3: Moderado: Postura acentuadamente encurvada (camptocormia) com anomalia óbvia.' },
+                { val: 4, text: '4: Grave: Postura muito encurvada com anomalia extrema.' }
+            ]
+        },
+        { 
+            container: 'part3', id: '3.14', title: 'Espontaneidade global de movimento (Bradicinesia Corporal)',
+            options: [
+                { val: 0, text: '0: Normal: Sem problemas.' },
+                { val: 1, text: '1: Discreto: Ligeira lentidão e/ou diminuição da amplitude global dos movimentos espontâneos.' },
+                { val: 2, text: '2: Ligeiro: Diminuição óbvia da espontaneidade e da amplitude do movimento global.' },
+                { val: 3, text: '3: Moderado: Diminuição muito acentuada e lentidão do movimento espontâneo.' },
+                { val: 4, text: '4: Grave: Movimento espontâneo ausente ou bloqueio (freezing) contínuo.' }
+            ]
+        },
+        
+        // Itens de Tremor (Utilizando a variável optTremor)
+        { container: 'part3', id: '3.15a', title: 'Tremor postural - Mão Direita', options: optTremor },
+        { container: 'part3', id: '3.15b', title: 'Tremor postural - Mão Esquerda', options: optTremor },
+        { container: 'part3', id: '3.16a', title: 'Tremor cinético - Mão Direita', options: optTremor },
+        { container: 'part3', id: '3.16b', title: 'Tremor cinético - Mão Esquerda', options: optTremor },
+        { container: 'part3', id: '3.17a', title: 'Amplitude do tremor de repouso - MSD', options: optTremor },
+        { container: 'part3', id: '3.17b', title: 'Amplitude do tremor de repouso - MSE', options: optTremor },
+        { container: 'part3', id: '3.17c', title: 'Amplitude do tremor de repouso - MID', options: optTremor },
+        { container: 'part3', id: '3.17d', title: 'Amplitude do tremor de repouso - MIE', options: optTremor },
+        { container: 'part3', id: '3.17e', title: 'Amplitude do tremor de repouso - Lábio/Mandíbula', options: optTremor },
+        
+        { 
+            container: 'part3', id: '3.18', title: 'Persistência do tremor de repouso',
+            options: [
+                { val: 0, text: '0: Normal: Sem tremor de repouso.' },
+                { val: 1, text: '1: Discreto: Tremor de repouso presente em ≤ 25% do período total de observação.' },
+                { val: 2, text: '2: Ligeiro: Tremor de repouso presente em 26 a 50% do período total de observação.' },
+                { val: 3, text: '3: Moderado: Tremor de repouso presente em 51 a 75% do período total de observação.' },
+                { val: 4, text: '4: Grave: Tremor de repouso presente em > 75% do período total de observação.' }
+            ]
+        },
+        
+        // PARTE 4
+        { 
+            container: 'part4', id: '4.1', title: 'Tempo gasto com discinesias',
+            options: [
+                { val: 0, text: '0: Normal: Sem discinesias.' },
+                { val: 1, text: '1: Discreto: ≤ 25% do tempo acordado do dia.' },
+                { val: 2, text: '2: Ligeiro: 26% a 50% do tempo acordado do dia.' },
+                { val: 3, text: '3: Moderado: 51% a 75% do tempo acordado do dia.' },
+                { val: 4, text: '4: Grave: > 75% do tempo acordado do dia.' }
+            ]
+        },
+        { 
+            container: 'part4', id: '4.2', title: 'Impacto funcional das discinesias',
+            options: [
+                { val: 0, text: '0: Normal: Sem discinesias ou estas não interferem com as atividades.' },
+                { val: 1, text: '1: Discreto: As discinesias afetam algumas atividades, mas sem causar impacto na maior parte delas.' },
+                { val: 2, text: '2: Ligeiro: As discinesias interferem em muitas atividades, mas o paciente consegue executá-las sozinho.' },
+                { val: 3, text: '3: Moderado: As discinesias causam grande restrição, sendo necessário evitar certas atividades.' },
+                { val: 4, text: '4: Grave: As discinesias impedem a realização das atividades habituais.' }
+            ]
+        },
+        { 
+            container: 'part4', id: '4.3', title: 'Tempo gasto no estado OFF',
+            options: [
+                { val: 0, text: '0: Normal: Sem períodos no estado OFF.' },
+                { val: 1, text: '1: Discreto: ≤ 25% do tempo acordado do dia.' },
+                { val: 2, text: '2: Ligeiro: 26% a 50% do tempo acordado do dia.' },
+                { val: 3, text: '3: Moderado: 51% a 75% do tempo acordado do dia.' },
+                { val: 4, text: '4: Grave: > 75% do tempo acordado do dia.' }
+            ]
+        },
+        { 
+            container: 'part4', id: '4.4', title: 'Impacto funcional das flutuações',
+            options: [
+                { val: 0, text: '0: Normal: Sem flutuações ou estado OFF não afeta as atividades.' },
+                { val: 1, text: '1: Discreto: O estado OFF interfere em algumas atividades, sem impedir a maioria.' },
+                { val: 2, text: '2: Ligeiro: O estado OFF interfere em muitas atividades, necessitando de ajuda eventual.' },
+                { val: 3, text: '3: Moderado: O estado OFF restringe muito o paciente, que evita atividades ou necessita de muita ajuda.' },
+                { val: 4, text: '4: Grave: O estado OFF incapacita totalmente o paciente para atividades diárias.' }
+            ]
+        },
+        { 
+            container: 'part4', id: '4.5', title: 'Complexidade das flutuações motoras',
+            options: [
+                { val: 0, text: '0: Normal: Sem flutuações motoras.' },
+                { val: 1, text: '1: Discreto: As flutuações são previsíveis (relacionadas com o tempo da medicação) e o estado OFF inicia gradualmente.' },
+                { val: 2, text: '2: Ligeiro: As flutuações são na maioria previsíveis, mas o estado OFF pode surgir abruptamente.' },
+                { val: 3, text: '3: Moderado: As flutuações são parcialmente previsíveis (apenas metade das vezes ligadas à medicação).' },
+                { val: 4, text: '4: Grave: As flutuações são totalmente imprevisíveis.' }
+            ]
+        },
+        { 
+            container: 'part4', id: '4.6', title: 'Distonia dolorosa no estado OFF',
+            options: [
+                { val: 0, text: '0: Normal: Sem distonia dolorosa.' },
+                { val: 1, text: '1: Discreto: Distonia dolorosa em ≤ 25% do tempo no estado OFF.' },
+                { val: 2, text: '2: Ligeiro: Distonia dolorosa em 26% a 50% do tempo no estado OFF.' },
+                { val: 3, text: '3: Moderado: Distonia dolorosa em 51% a 75% do tempo no estado OFF.' },
+                { val: 4, text: '4: Grave: Distonia dolorosa em > 75% do tempo no estado OFF.' }
+            ]
+        }
+    ];
+
+    // O CÓDIGO QUE DESENHA AS PERGUNTAS NA TELA
+    allQuestions.forEach(q => {
+        const container = document.getElementById(q.container);
+        if(!container) return;
+
+        const qBlock = document.createElement('div');
+        qBlock.className = 'question-block';
+        qBlock.innerHTML = `<div class="question-title">${q.id}. ${q.title}</div>`;
+
+        const optionsGroup = document.createElement('div');
+        optionsGroup.className = 'options-group';
+
+        const optsToUse = q.options ? q.options : defaultOptions;
+
+        optsToUse.forEach(opt => {
+            const label = document.createElement('label');
+            label.innerHTML = `<input type="radio" name="q_${q.id}" value="${opt.val}"> ${opt.text}`;
+            optionsGroup.appendChild(label);
+        });
+
+        qBlock.appendChild(optionsGroup);
+        container.appendChild(qBlock);
+    });
+
+    // FUNÇÕES DE CÁLCULO
+    function calcularPorcentagensPart4() {
+        const hAcordado = parseFloat(document.getElementById('horasAcordado').value) || 0;
+        const hDiscinesia = parseFloat(document.getElementById('horasDiscinesia').value) || 0;
+        const hOff = parseFloat(document.getElementById('horasOff').value) || 0;
+        const hDistonia = parseFloat(document.getElementById('horasDistonia').value) || 0;
+
+        let pDiscinesia = 0, pOff = 0, pDistonia = 0;
+
+        if (hAcordado > 0) {
+            pDiscinesia = (hDiscinesia / hAcordado) * 100;
+            pOff = (hOff / hAcordado) * 100;
+        }
+        if (hOff > 0) {
+            pDistonia = (hDistonia / hOff) * 100;
+        }
+
+        document.getElementById('percDiscinesia').value = Math.min(pDiscinesia, 100).toFixed(1) + '%';
+        document.getElementById('percOff').value = Math.min(pOff, 100).toFixed(1) + '%';
+        document.getElementById('percDistonia').value = Math.min(pDistonia, 100).toFixed(1) + '%';
+    }
+
+   function calculateFinalScore() {
+        // 1. Verificação Rigorosa do Nome e da Data
+        const nomePaciente = document.getElementById('patientName').value.trim();
+        const dataAvaliacao = document.getElementById('date').value;
+
+        if (!nomePaciente || !dataAvaliacao) {
+            alert("⚠️ Atenção! É estritamente obrigatório preencher o 'Nome do Paciente' e a 'Data da Avaliação' antes de calcular a pontuação.");
+            // Faz o ecrã subir para o topo para a pessoa ver os campos em falta
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return; // Cancela o cálculo aqui mesmo
+        }
+
+        // 2. Verifica se os restantes campos do cabeçalho também estão preenchidos (Médico, Local, etc)
+        const form = document.getElementById('updrsForm');
+        if(!form.checkValidity()) {
+            form.reportValidity(); // Mostra o aviso vermelho nativo do navegador
+            return;
+        }
+
+        let scores = { '1': 0, '2': 0, '3': 0, '4': 0 };
+        let total = 0;
+        let perguntasFaltando = []; // Lista para guardar o que faltou responder
+
+        // 3. Passa por todas as perguntas a confirmar se alguma opção foi marcada
+        allQuestions.forEach(q => {
+            const radios = document.getElementsByName(`q_${q.id}`);
+            let respondida = false;
+            
+            for(let radio of radios) {
+                if(radio.checked) {
+                    const val = parseInt(radio.value);
+                    scores[q.id.charAt(0)] += val; 
+                    total += val;
+                    respondida = true;
+                    break;
+                }
+            }
+            
+            // Se não encontrou nenhuma bolinha marcada nesta pergunta, anota o ID dela
+            if(!respondida) {
+                perguntasFaltando.push(q.id);
+            }
+        });
+
+        // 4. Trava de segurança: Se faltar alguma pergunta, avisa o utilizador e pára o cálculo!
+        if(perguntasFaltando.length > 0) {
+            alert("⚠️ Atenção! Esqueceu-se de responder a " + perguntasFaltando.length + " pergunta(s).\n\nPor favor, preencha os seguintes itens antes de calcular: " + perguntasFaltando.join(", "));
+            return; 
+        }
+
+        // Se chegou até aqui, está tudo 100% preenchido! Vamos mostrar os resultados:
+        document.getElementById('scoreP1').textContent = scores['1'];
+        document.getElementById('scoreP2').textContent = scores['2'];
+        document.getElementById('scoreP3').textContent = scores['3'];
+        document.getElementById('scoreP4').textContent = scores['4'];
+        document.getElementById('scoreTotal').textContent = total;
+        
+        // Guarda nos campos ocultos para o Formspree enviar por e-mail
+        document.getElementById('hiddenP1').value = scores['1'];
+        document.getElementById('hiddenP2').value = scores['2'];
+        document.getElementById('hiddenP3').value = scores['3'];
+        document.getElementById('hiddenP4').value = scores['4'];
+        document.getElementById('hiddenTotal').value = total;
+        
+        const resultBox = document.getElementById('result-box');
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
